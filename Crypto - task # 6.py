@@ -20,6 +20,12 @@ currencies = {
     'RUB': 'Российский рубль',
 }
 
+currency_symbols = {
+    'EUR': '€',
+    'USD': '$',
+    'RUB': '₽',
+}
+
 API_URL = "https://api.coingecko.com/api/v3/simple/price"
 
 
@@ -57,7 +63,12 @@ def show_price():
                 crypto_display = crypto_name
                 currency_display = currencies[currency_code]
 
-                mb.showinfo('Курс обмена', f'Курс: 1 {crypto_display} = {exchange_rate} {currency_display}')
+                symbol = currency_symbols.get(currency_code, currency_code)
+                # Обновляем метку с курсом вместо всплывающего окна: mb.showinfo('Курс обмена', f'Курс: 1 {crypto_display} = {exchange_rate} {currency_display}')
+                price_label.config(
+                    text=f'Курс: 1 {crypto_display}  =  {symbol} {exchange_rate}'
+                )
+
             else:
                 mb.showerror(
                     'Ошибка',
@@ -65,7 +76,7 @@ def show_price():
                 )
 
         except Exception as er:
-            mb.showerror('Ошибка', er)
+            mb.showerror('Ошибка', str(er))
 
     else:
         mb.showwarning('Внимание', 'Выберите криптовалюту и валюту')
@@ -73,28 +84,43 @@ def show_price():
 
 root = Tk()
 root.title('Курс криптовалют')
-root.geometry('360x280')
+root.geometry('300x300')
+root.config(bg='grey11')
 
-Label(root, text='Криптовалюта').pack()
-crypto_combobox = ttk.Combobox(root, values=list(crypto.keys()))
-crypto_combobox.pack(pady=4, padx=10)
+blank = PhotoImage(width=1, height=1)
+root.iconphoto(False, blank)
+
+# --- ВИДЖЕТЫ  ---
+
+# Заголовки колонок
+Label(root, text='Криптовалюта', font=('Arial', 10, 'bold'), fg='white', bg='grey11').grid(row=0, column=0, padx=10,
+                                                                                           pady=5, sticky='w')
+Label(root, text='Валюта', font=('Arial', 10, 'bold'), fg='white', bg='grey11').grid(row=0, column=1, padx=10, pady=5,
+                                                                                     sticky='w')
+
+# Комбобоксы
+crypto_combobox = ttk.Combobox(root, values=list(crypto.keys()), width=18)
+crypto_combobox.grid(row=1, column=0, padx=10, pady=4)
 crypto_combobox.bind('<<ComboboxSelected>>', update_crypto_label)
-crypto_label = ttk.Label(root)
-crypto_label.pack()
 
-
-Label(root, text='Валюта').pack(padx=10)
-currency_combobox = ttk.Combobox(root, values=list(currencies.keys()))
-currency_combobox.pack(pady=4, padx=10)
+currency_combobox = ttk.Combobox(root, values=list(currencies.keys()), width=18)
+currency_combobox.grid(row=1, column=1, padx=10, pady=4)
 currency_combobox.bind('<<ComboboxSelected>>', update_currency_label)
-currency_label = ttk.Label(root)
-currency_label.pack()
 
+# Подписи с названиями (под комбобоксами)
+crypto_label = Label(root, text='', font=('Arial', 9), bg='grey11', fg='white')
+crypto_label.grid(row=2, column=0, padx=10, pady=2, sticky='w')
 
-Button(root, text='Показать курс', command=show_price).pack(pady=10, padx=10)
+currency_label = Label(root, text='', font=('Arial', 9), bg='grey11', fg='white')
+currency_label.grid(row=2, column=1, padx=10, pady=2, sticky='w')
 
+# Кнопка по центру
+Button(root, text='•   Показать курс', command=show_price, width=20, bg="DarkGoldenrod4", font=('Arial', 10, 'bold'),
+       fg="yellow").grid(row=3, column=0, columnspan=2, pady=15)
 
-#icon_path = r"C:\Users\User\Downloads\obmen_endqu872i8mh.ico"
-#root.iconbitmap(icon_path)
+price_label = Label(root, text='', bg='grey11', fg='green1', font=('Arial', 13, 'bold'), anchor='center',
+                    wraplength=400)
+price_label.grid(row=4, column=0, columnspan=2, pady=10)
 
 root.mainloop()
+
