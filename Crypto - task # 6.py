@@ -36,30 +36,39 @@ def update_currency_label(event):
 
 
 def show_price():
-    crypto_code = crypto_combobox.get().strip()
+    crypto_name = crypto_combobox.get().strip()
     currency_code = currency_combobox.get().strip()
-    if (crypto_code and currency_code):
-        try:
 
-            response = requests.get(API_URL, crypto_code)
+    if crypto_name and currency_code:
+        try:
+            crypto_code = crypto[crypto_name]
+
+            params = {
+                'ids': crypto_code,
+                'vs_currencies': currency_code.lower()
+            }
+
+            response = requests.get(API_URL, params=params)
             response.raise_for_status()
             data = response.json()
 
-            if crypto_code in data['rates']:
-                exchange_rate = data['rates'][crypto_code]
-                currency = currencies[currency_code]
-                crypto = currencies[crypto_code]
+            if crypto_code in data and currency_code.lower() in data[crypto_code]:
+                exchange_rate = data[crypto_code][currency_code.lower()]
+                crypto_display = crypto_name
+                currency_display = currencies[currency_code]
 
-                mb.showinfo('Курс обмена',
-                            f'Курс: {exchange_rate} 1 {crypto} = {currency}')
+                mb.showinfo('Курс обмена', f'Курс: 1 {crypto_display} = {exchange_rate} {currency_display}')
             else:
-                mb.showerror('Ошибка',
-                             f'Валюта {crypto_code} не найдена')
+                mb.showerror(
+                    'Ошибка',
+                    f'Курс для {crypto_name} в {currency_code} не найден'
+                )
+
         except Exception as er:
             mb.showerror('Ошибка', er)
 
     else:
-        mb.showwarning('Внимание', 'Введите код валюты')
+        mb.showwarning('Внимание', 'Выберите криптовалюту и валюту')
 
 
 root = Tk()
@@ -70,15 +79,22 @@ Label(root, text='Криптовалюта').pack()
 crypto_combobox = ttk.Combobox(root, values=list(crypto.keys()))
 crypto_combobox.pack(pady=4, padx=10)
 crypto_combobox.bind('<<ComboboxSelected>>', update_crypto_label)
-crypto_label = ttk.Label()
+crypto_label = ttk.Label(root)
 crypto_label.pack()
 
-Label(root, text='Bалюта').pack(padx=10)
+
+Label(root, text='Валюта').pack(padx=10)
 currency_combobox = ttk.Combobox(root, values=list(currencies.keys()))
 currency_combobox.pack(pady=4, padx=10)
 currency_combobox.bind('<<ComboboxSelected>>', update_currency_label)
-currency_label = ttk.Label()
+currency_label = ttk.Label(root)
 currency_label.pack()
 
-Button(text='Показать курс', command=show_price).pack(pady=10, padx=10)
+
+Button(root, text='Показать курс', command=show_price).pack(pady=10, padx=10)
+
+
+#icon_path = r"C:\Users\User\Downloads\obmen_endqu872i8mh.ico"
+#root.iconbitmap(icon_path)
+
 root.mainloop()
