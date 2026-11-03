@@ -14,6 +14,17 @@ crypto = {
     'Dogecoin': 'dogecoin',
 }
 
+crypto_rus = {
+    'Bitcoin': 'Биткоин',
+    'Ethereum': 'Эфириум',
+    'Tether': 'Тетер',
+    'Solana': 'Солана',
+    'BNB': 'BNB',
+    'XRP': 'XRP',
+    'Cardano': 'Кардано',
+    'Dogecoin': 'Догикоин',
+}
+
 currencies = {
     'EUR': 'Евро',
     'USD': 'Доллар США',
@@ -31,7 +42,7 @@ API_URL = "https://api.coingecko.com/api/v3/simple/price"
 
 def update_crypto_label(event):
     code = crypto_combobox.get()
-    name = crypto[code]
+    name = crypto_rus[code]
     crypto_label.config(text=name)
 
 
@@ -84,9 +95,14 @@ def show_price():
 
 root = Tk()
 root.title('Курс криптовалют')
-root.geometry('300x300')
+w = root.winfo_screenwidth()
+h = root.winfo_screenheight()
+w2 = w // 2 - 200
+h2 = h // 2 - 150
+root.geometry(f'300x300+{w2}+{h2}')
 root.config(bg='grey11')
 
+# удалить иконку, надоела
 blank = PhotoImage(width=1, height=1)
 root.iconphoto(False, blank)
 
@@ -123,4 +139,3 @@ price_label = Label(root, text='', bg='grey11', fg='green1', font=('Arial', 13, 
 price_label.grid(row=4, column=0, columnspan=2, pady=10)
 
 root.mainloop()
-
